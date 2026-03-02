@@ -42,7 +42,7 @@
             color: rgba(255,255,255,0.3);
         }
 
-        /* FIXED: Shortcut Button Visibility */
+        /* SHORTCUT BUTTON - FORCED VISIBILITY */
         .shortcut-btn {
             position: absolute;
             right: 15px;
@@ -55,20 +55,19 @@
             font-size: 0.6rem;
             font-weight: 800;
             backdrop-filter: blur(10px);
-            display: flex; /* Always flex to stay visible */
+            display: flex; 
             align-items: center;
             gap: 5px;
             cursor: pointer;
-            transition: 0.3s;
             z-index: 1001;
         }
 
         .tab-container { display: flex; margin: 0 20px 10px 20px; background: var(--glass); backdrop-filter: blur(15px); border-radius: 20px; padding: 5px; border: 1px solid var(--glass-border); }
         .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: rgba(255,255,255,0.5); font-weight: 500; border-radius: 15px; cursor: pointer; transition: 0.4s; }
-        .tab-btn.active { background: rgba(255, 255, 255, 0.1); color: white; }
+        .tab-btn.active { background: rgba(255, 255, 255, 0.15); color: white; }
 
         .content { flex: 1; position: relative; margin: 0 20px 100px 20px; }
-        .panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.98); visibility: hidden; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.98); visibility: hidden; transition: 0.5s; }
         .panel.active { opacity: 1; transform: scale(1); visibility: visible; }
 
         .glass-card { width: 100%; height: 100%; background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 35px; overflow: hidden; }
@@ -76,14 +75,14 @@
         iframe { width: 100%; height: 100%; border: none; background: white; border-radius: 30px; }
 
         .actions { position: fixed; bottom: 30px; left: 0; width: 100%; display: flex; justify-content: center; gap: 10px; z-index: 100; padding: 0 10px; }
-        .btn { border: none; padding: 16px 20px; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 6px; font-size: 0.8rem; }
+        .btn { border: none; padding: 16px 20px; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
         
-        .clear-btn { background: var(--danger); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.3); }
+        .clear-btn { background: var(--danger); color: #ff453a; }
         .download-btn { background: var(--glass); color: white; border: 1px solid var(--glass-border); }
-        .deploy-btn { background: white; color: black; box-shadow: 0 0 20px rgba(0,210,255,0.3); padding: 16px 30px; }
+        .deploy-btn { background: white; color: black; box-shadow: 0 0 20px rgba(0,210,255,0.3); }
 
-        /* Icon Alignment Fix */
-        .btn svg { display: block; flex-shrink: 0; }
+        /* FIXED SAVE ICON SVG */
+        .download-btn svg { stroke: white; }
 
         #save-portal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -117,7 +116,7 @@
 
 <div class="content">
     <div id="code-panel" class="panel active">
-        <div class="glass-card"><textarea id="editor" spellcheck="false" placeholder="// Inject XOS code..."><h1>XOS ACTIVE</h1></textarea></div>
+        <div class="glass-card"><textarea id="editor" spellcheck="false" placeholder="// Architecture build..."><h1>XOS ACTIVE</h1></textarea></div>
     </div>
     <div id="preview-panel" class="panel">
         <div class="glass-card" style="background: white;"><iframe id="viewer"></iframe></div>
@@ -126,7 +125,7 @@
 
 <div class="actions">
     <button class="btn clear-btn" onclick="clearEditor()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
         Clear
     </button>
     
@@ -140,7 +139,7 @@
 
 <div id="save-portal">
     <div class="portal-card">
-        <h2 style="margin:0;">Save Project</h2>
+        <h2>Save Project</h2>
         <input type="text" id="project-name" class="portal-input" placeholder="Project Name" autofocus>
         <div class="portal-btns">
             <button class="p-btn save-cancel" onclick="closePortal()">Cancel</button>
@@ -150,37 +149,29 @@
 </div>
 
 <script>
+    // CRITICAL: Ensure this matches the filename in your GitHub repo!
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js');
+        navigator.serviceWorker.register('sw.js'); 
     }
 
     let deferredPrompt;
-    const installBtn = document.getElementById('install-btn');
-
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        // Logic to show button is already handled by CSS 'flex'
     });
 
-    installBtn.addEventListener('click', async () => {
+    document.getElementById('install-btn').addEventListener('click', async () => {
         if (deferredPrompt) {
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                installBtn.style.display = 'none';
-            }
             deferredPrompt = null;
         } else {
-            // Fallback for when the browser doesn't support the automated prompt yet
-            alert("To add XOS to your home screen:\n\n1. Tap the browser menu (⋮ or ⇧)\n2. Select 'Add to Home screen' or 'Install app'.");
+            alert("To add shortcut manually:\n1. Open browser menu (⋮ or ⇧)\n2. Tap 'Add to Home screen'");
         }
     });
 
     function clearEditor() {
-        if(confirm("Clear all code in Architecture?")) {
-            document.getElementById('editor').value = "";
-        }
+        if(confirm("Clear Architecture?")) document.getElementById('editor').value = "";
     }
 
     function runCode() {
@@ -202,11 +193,9 @@
     function openPortal() { portal.style.display='flex'; setTimeout(()=>portal.classList.add('show'),10); }
     function closePortal() { portal.classList.remove('show'); setTimeout(()=>portal.style.display='none',400); }
     function confirmDownload() {
-        let fileName = document.getElementById('project-name').value.trim() || "xos_module";
-        const code = document.getElementById('editor').value;
-        const blob = new Blob([code], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = `${fileName}.html`;
+        let name = document.getElementById('project-name').value.trim() || "xos_module";
+        const blob = new Blob([document.getElementById('editor').value], { type: 'text/html' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${name}.html`;
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         closePortal();
     }
