@@ -177,6 +177,7 @@
     const editor = document.getElementById('editor');
     const actionBtn = document.getElementById('action-btn');
 
+    // Button Toggle (Paste/Clear)
     function toggleButtons() {
         if (editor.value.trim() === "") {
             actionBtn.className = "btn paste-btn";
@@ -194,13 +195,10 @@
                 if(text) {
                     editor.value = text;
                     toggleButtons();
-                } else {
-                    alert("Clipboard is empty.");
                 }
             } catch (err) {
-                // Focus editor first as some browsers require user interaction
                 editor.focus();
-                alert("Please click 'Allow' to paste from clipboard.");
+                alert("Please Allow Clipboard Access.");
             }
         } else {
             if(confirm("Clear Architecture?")) {
@@ -209,6 +207,26 @@
             }
         }
     }
+
+    // Shortcut/Install Logic
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+    });
+
+    document.getElementById('install-btn').addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            }
+            deferredPrompt = null;
+        } else {
+            alert("App Shortcut Installation:\n1. Open Browser Menu (⋮)\n2. Tap 'Add to Home screen'");
+        }
+    });
 
     // Initialize UI
     toggleButtons();
