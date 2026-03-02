@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XOS Intelligence System</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --accent: #00d2ff;
+            --pure-black: #000000;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            background-color: var(--pure-black);
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header { 
+            padding: 20px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .header-title {
+            font-size: 0.6rem; 
+            letter-spacing: 4px; 
+            text-transform: uppercase; 
+            color: rgba(255,255,255,0.3);
+        }
+
+        .shortcut-btn {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--accent);
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            font-weight: 800;
+            backdrop-filter: blur(10px);
+            display: none; /* Only shows when install is ready */
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .tab-container { display: flex; margin: 0 20px 10px 20px; background: var(--glass); backdrop-filter: blur(15px); border-radius: 20px; padding: 5px; border: 1px solid var(--glass-border); }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: rgba(255,255,255,0.5); font-weight: 500; border-radius: 15px; cursor: pointer; transition: 0.4s; }
+        .tab-btn.active { background: rgba(255, 255, 255, 0.1); color: white; }
+
+        .content { flex: 1; position: relative; margin: 0 20px 100px 20px; }
+        .panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.98); visibility: hidden; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .panel.active { opacity: 1; transform: scale(1); visibility: visible; }
+
+        .glass-card { width: 100%; height: 100%; background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 35px; overflow: hidden; }
+        textarea { width: 100%; height: 100%; background: transparent; border: none; color: var(--accent); padding: 25px; font-family: 'Fira Code', monospace; font-size: 14px; outline: none; resize: none; }
+        iframe { width: 100%; height: 100%; border: none; background: white; border-radius: 30px; }
+
+        .actions { position: fixed; bottom: 30px; left: 0; width: 100%; display: flex; justify-content: center; gap: 15px; z-index: 100; }
+        .btn { border: none; padding: 16px 30px; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .deploy-btn { background: white; color: black; box-shadow: 0 0 20px rgba(0,210,255,0.3); }
+        .download-btn { background: var(--glass); color: white; border: 1px solid var(--glass-border); }
+
+        #save-portal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(15px);
+            display: none; align-items: center; justify-content: center;
+            z-index: 2000; opacity: 0; transition: 0.4s;
+        }
+        #save-portal.show { display: flex; opacity: 1; }
+        .portal-card { background: var(--glass); border: 1px solid var(--glass-border); padding: 40px; border-radius: 40px; width: 85%; max-width: 400px; text-align: center; }
+        .portal-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 15px; border-radius: 15px; color: white; margin: 20px 0; outline: none; text-align: center; }
+        .portal-btns { display: flex; gap: 10px; }
+        .p-btn { flex: 1; padding: 12px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; }
+        .save-confirm { background: var(--accent); color: black; }
+        .save-cancel { background: transparent; color: white; border: 1px solid var(--glass-border); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-title">XOS Core Intelligence</div>
+    <button id="install-btn" class="shortcut-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg>
+        ADD SHORTCUT
+    </button>
+</header>
+
+<div class="tab-container">
+    <button class="tab-btn active" onclick="switchTab('code', this)">Architecture</button>
+    <button class="tab-btn" onclick="switchTab('preview', this)">Deployment</button>
+</div>
+
+<div class="content">
+    <div id="code-panel" class="panel active">
+        <div class="glass-card"><textarea id="editor" spellcheck="false" placeholder="// Inject XOS code..."><h1>XOS ACTIVE</h1></textarea></div>
+    </div>
+    <div id="preview-panel" class="panel">
+        <div class="glass-card" style="background: white;"><iframe id="viewer"></iframe></div>
+    </div>
+</div>
+
+<div class="actions">
+    <button class="btn download-btn" onclick="openPortal()">Save</button>
+    <button class="btn deploy-btn" onclick="runCode()">🚀 Deploy</button>
+</div>
+
+<div id="save-portal">
+    <div class="portal-card">
+        <h2 style="margin:0;">Save Project</h2>
+        <input type="text" id="project-name" class="portal-input" placeholder="Project Name" autofocus>
+        <div class="portal-btns">
+            <button class="p-btn save-cancel" onclick="closePortal()">Cancel</button>
+            <button class="p-btn save-confirm" onclick="confirmDownload()">Save Applet</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Register Service Worker (Required for "Add to Home Screen")
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
+
+    let deferredPrompt;
+    const installBtn = document.getElementById('install-btn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'flex'; // Show button when ready
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                installBtn.style.display = 'none';
+            }
+            deferredPrompt = null;
+        }
+    });
+
+    function runCode() {
+        const code = document.getElementById('editor').value;
+        const iframe = document.getElementById('viewer');
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        doc.open(); doc.write(code); doc.close();
+        switchTab('preview', document.querySelectorAll('.tab-btn')[1]);
+    }
+
+    function switchTab(tab, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(tab + '-panel').classList.add('active');
+    }
+
+    const portal = document.getElementById('save-portal');
+    function openPortal() { portal.style.display='flex'; setTimeout(()=>portal.classList.add('show'),10); }
+    function closePortal() { portal.classList.remove('show'); setTimeout(()=>portal.style.display='none',400); }
+    function confirmDownload() {
+        let fileName = document.getElementById('project-name').value.trim() || "xos_module";
+        const code = document.getElementById('editor').value;
+        const blob = new Blob([code], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = `${fileName}.html`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        closePortal();
+    }
+</script>
+</body>
+</html>

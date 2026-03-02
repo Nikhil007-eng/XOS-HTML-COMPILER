@@ -1,0 +1,15 @@
+{
+  "name": "XOS Compiler",
+  "short_name": "XOS",
+  "start_url": "/XOS-HTML-COMPILER/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "https://nikhil007-eng.github.io/XOS-HTML-COMPILER/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
