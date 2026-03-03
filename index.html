@@ -43,10 +43,16 @@
             color: rgba(255,255,255,0.3);
         }
 
-        .shortcut-btn {
+        .header-actions {
             position: absolute;
             right: 15px;
             top: 15px;
+            display: flex;
+            gap: 8px;
+            z-index: 1001;
+        }
+
+        .shortcut-btn {
             background: var(--glass);
             border: 1px solid var(--glass-border);
             color: var(--accent);
@@ -59,7 +65,6 @@
             align-items: center;
             gap: 5px;
             cursor: pointer;
-            z-index: 1001;
         }
 
         .tab-container { display: flex; margin: 0 20px 10px 20px; background: var(--glass); backdrop-filter: blur(15px); border-radius: 20px; padding: 5px; border: 1px solid var(--glass-border); }
@@ -72,7 +77,17 @@
 
         .glass-card { width: 100%; height: 100%; background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 35px; overflow: hidden; }
         textarea { width: 100%; height: 100%; background: transparent; border: none; color: var(--accent); padding: 25px; font-family: 'Fira Code', monospace; font-size: 14px; outline: none; resize: none; }
-        iframe { width: 100%; height: 100%; border: none; background: white; border-radius: 30px; }
+        
+        iframe { 
+            width: 100%; 
+            height: 100%; 
+            border: none; 
+            background: white; 
+            border-radius: 30px; 
+            transition: opacity 0.4s ease;
+            opacity: 0;
+        }
+        iframe.loaded { opacity: 1; }
 
         .actions { 
             position: fixed; 
@@ -108,8 +123,6 @@
         .download-btn { background: var(--glass); color: white; border: 1px solid var(--glass-border); min-width: 90px; }
         .deploy-btn { background: white; color: black; box-shadow: 0 0 20px rgba(0,210,255,0.3); min-width: 110px; }
 
-        .download-btn svg { stroke: white; }
-
         #save-portal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); backdrop-filter: blur(15px);
@@ -129,10 +142,15 @@
 
 <header>
     <div class="header-title">XOS Core Intelligence</div>
-    <button id="install-btn" class="shortcut-btn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        SHORTCUT
-    </button>
+    <div class="header-actions">
+        <button id="refresh-btn" class="shortcut-btn" onclick="resetSystem()" title="Instant Reset">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+        </button>
+        <button id="install-btn" class="shortcut-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            SHORTCUT
+        </button>
+    </div>
 </header>
 
 <div class="tab-container">
@@ -176,8 +194,8 @@
 <script>
     const editor = document.getElementById('editor');
     const actionBtn = document.getElementById('action-btn');
+    const viewer = document.getElementById('viewer');
 
-    // Button Toggle (Paste/Clear)
     function toggleButtons() {
         if (editor.value.trim() === "") {
             actionBtn.className = "btn paste-btn";
@@ -198,17 +216,50 @@
                 }
             } catch (err) {
                 editor.focus();
-                alert("Please Allow Clipboard Access.");
             }
         } else {
-            if(confirm("Clear Architecture?")) {
-                editor.value = "";
-                toggleButtons();
-            }
+            // Instant clear without confirmation
+            editor.value = "";
+            toggleButtons();
         }
     }
 
-    // Shortcut/Install Logic
+    // Instant Reset Logic
+    function resetSystem() {
+        editor.value = "";
+        const doc = viewer.contentDocument || viewer.contentWindow.document;
+        doc.open(); doc.write(""); doc.close();
+        viewer.classList.remove('loaded');
+        switchTab('code', document.querySelectorAll('.tab-btn')[0]);
+        toggleButtons();
+    }
+
+    function runCode() {
+        viewer.classList.remove('loaded');
+        setTimeout(() => {
+            const code = editor.value;
+            const doc = viewer.contentDocument || viewer.contentWindow.document;
+            doc.open(); doc.write(code); doc.close();
+            viewer.classList.add('loaded');
+        }, 150);
+
+        if(document.getElementById('code-panel').classList.contains('active')) {
+            switchTab('preview', document.querySelectorAll('.tab-btn')[1]);
+        }
+    }
+
+    function switchTab(tab, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(tab + '-panel').classList.add('active');
+
+        if (tab === 'preview' && editor.value.trim() !== "") {
+            runCode();
+        }
+    }
+
+    // Install Shortcut
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
@@ -218,38 +269,17 @@
     document.getElementById('install-btn').addEventListener('click', async () => {
         if (deferredPrompt) {
             deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                console.log('User accepted the install prompt');
-            }
             deferredPrompt = null;
         } else {
-            alert("App Shortcut Installation:\n1. Open Browser Menu (⋮)\n2. Tap 'Add to Home screen'");
+            alert("App Shortcut:\n1. Open Browser Menu (⋮)\n2. Tap 'Add to Home screen'");
         }
     });
 
-    // Initialize UI
-    toggleButtons();
-
-    // Core functionality
-    function runCode() {
-        const code = editor.value;
-        const iframe = document.getElementById('viewer');
-        const doc = iframe.contentDocument || iframe.contentWindow.document;
-        doc.open(); doc.write(code); doc.close();
-        switchTab('preview', document.querySelectorAll('.tab-btn')[1]);
-    }
-
-    function switchTab(tab, btn) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        document.getElementById(tab + '-panel').classList.add('active');
-    }
-
+    // Save Portal
     const portal = document.getElementById('save-portal');
     function openPortal() { portal.style.display='flex'; setTimeout(()=>portal.classList.add('show'),10); }
     function closePortal() { portal.classList.remove('show'); setTimeout(()=>portal.style.display='none',400); }
+    
     function confirmDownload() {
         let name = document.getElementById('project-name').value.trim() || "xos_module";
         const blob = new Blob([editor.value], { type: 'text/html' });
@@ -257,6 +287,8 @@
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         closePortal();
     }
+
+    toggleButtons();
 </script>
 </body>
 </html>
