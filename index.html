@@ -17,125 +17,46 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            margin: 0;
-            background-color: var(--pure-black);
-            font-family: 'Inter', -apple-system, sans-serif;
-            color: white;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            margin: 0; background-color: var(--pure-black);
+            font-family: 'Inter', sans-serif; color: white;
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        header { 
-            padding: 20px; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
-        .header-title {
-            font-size: 0.6rem; 
-            letter-spacing: 4px; 
-            text-transform: uppercase; 
-            color: rgba(255,255,255,0.3);
-        }
-
-        .header-actions {
-            position: absolute;
-            right: 15px;
-            top: 15px;
-            display: flex;
-            gap: 8px;
-            z-index: 1001;
-        }
+        header { padding: 20px; display: flex; justify-content: center; align-items: center; position: relative; }
+        .header-title { font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+        .header-actions { position: absolute; right: 15px; top: 15px; display: flex; gap: 8px; z-index: 1001; }
 
         .shortcut-btn {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            color: var(--accent);
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-size: 0.6rem;
-            font-weight: 800;
-            backdrop-filter: blur(10px);
-            display: flex; 
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            transition: 0.2s;
+            background: var(--glass); border: 1px solid var(--glass-border); color: var(--accent);
+            padding: 8px 12px; border-radius: 12px; font-size: 0.6rem; font-weight: 800; cursor: pointer;
+            backdrop-filter: blur(10px); display: flex; align-items: center; gap: 5px;
         }
 
-        .tab-container { display: flex; margin: 0 20px 10px 20px; background: var(--glass); backdrop-filter: blur(15px); border-radius: 20px; padding: 5px; border: 1px solid var(--glass-border); }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: rgba(255,255,255,0.5); font-weight: 500; border-radius: 15px; cursor: pointer; transition: 0.4s; }
+        .tab-container { display: flex; margin: 0 20px 10px 20px; background: var(--glass); border-radius: 20px; padding: 5px; border: 1px solid var(--glass-border); }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: rgba(255,255,255,0.5); font-weight: 500; border-radius: 15px; cursor: pointer; }
         .tab-btn.active { background: rgba(255, 255, 255, 0.15); color: white; }
 
         .content { flex: 1; position: relative; margin: 0 20px 100px 20px; }
-        .panel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transform: scale(0.98); visibility: hidden; transition: 0.5s; }
+        .panel { position: absolute; width: 100%; height: 100%; opacity: 0; transform: scale(0.98); visibility: hidden; transition: 0.5s; }
         .panel.active { opacity: 1; transform: scale(1); visibility: visible; }
 
         .glass-card { width: 100%; height: 100%; background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 35px; overflow: hidden; }
         textarea { width: 100%; height: 100%; background: transparent; border: none; color: var(--accent); padding: 25px; font-family: 'Fira Code', monospace; font-size: 14px; outline: none; resize: none; }
-        
-        iframe { 
-            width: 100%; 
-            height: 100%; 
-            border: none; 
-            background: white; 
-            border-radius: 30px; 
-            transition: opacity 0.4s ease;
-            opacity: 0;
-        }
+        iframe { width: 100%; height: 100%; border: none; background: white; border-radius: 30px; opacity: 0; transition: 0.4s; }
         iframe.loaded { opacity: 1; }
 
-        .actions { 
-            position: fixed; 
-            bottom: 30px; 
-            left: 0; 
-            width: 100%; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center;
-            gap: 8px; 
-            z-index: 100; 
-            padding: 0 15px; 
-        }
-        
-        .btn { 
-            border: none; 
-            padding: 16px 18px; 
-            border-radius: 50px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            gap: 8px; 
-            font-size: 14px;
-            white-space: nowrap;
-            min-width: 100px;
-        }
-        
+        .actions { position: fixed; bottom: 30px; left: 0; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; z-index: 100; padding: 0 15px; }
+        .btn { border: none; padding: 16px 18px; border-radius: 50px; font-weight: 700; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; }
         .clear-btn { background: var(--danger); color: #ff453a; }
         .paste-btn { background: var(--success); color: #34c759; } 
-        .download-btn { background: var(--glass); color: white; border: 1px solid var(--glass-border); min-width: 90px; }
+        .download-btn { background: var(--glass); color: white; border: 1px solid var(--glass-border); }
         .deploy-btn { background: white; color: black; box-shadow: 0 0 20px rgba(0,210,255,0.3); min-width: 110px; }
 
-        #save-portal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(15px);
-            display: none; align-items: center; justify-content: center;
-            z-index: 2000; opacity: 0; transition: 0.4s;
-        }
+        /* Save Portal */
+        #save-portal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); display: none; align-items: center; justify-content: center; z-index: 2000; opacity: 0; transition: 0.4s; }
         #save-portal.show { display: flex; opacity: 1; }
         .portal-card { background: var(--glass); border: 1px solid var(--glass-border); padding: 40px; border-radius: 40px; width: 85%; max-width: 400px; text-align: center; }
         .portal-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 15px; border-radius: 15px; color: white; margin: 20px 0; outline: none; text-align: center; }
-        .portal-btns { display: flex; gap: 10px; }
-        .p-btn { flex: 1; padding: 12px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; }
-        .save-confirm { background: var(--accent); color: black; }
-        .save-cancel { background: transparent; color: white; border: 1px solid var(--glass-border); }
     </style>
 </head>
 <body>
@@ -143,17 +64,11 @@
 <header>
     <div class="header-title">XOS Core Intelligence</div>
     <div class="header-actions">
-        <button id="link-btn" class="shortcut-btn" onclick="generateRunLink()" title="Generate Chrome Link">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+        <button id="link-btn" class="shortcut-btn" onclick="generateStableLink()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
             LINK
         </button>
-        <button id="refresh-btn" class="shortcut-btn" onclick="resetSystem()" title="Instant Reset">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-        </button>
-        <button id="install-btn" class="shortcut-btn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            SHORTCUT
-        </button>
+        <button class="shortcut-btn" onclick="location.reload()">RESET</button>
     </div>
 </header>
 
@@ -175,22 +90,17 @@
 
 <div class="actions">
     <button id="action-btn" class="btn" onclick="handleAction()"></button>
-    
-    <button class="btn download-btn" onclick="openPortal()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        Save
-    </button>
-    
+    <button class="btn download-btn" onclick="openPortal()">Save</button>
     <button class="btn deploy-btn" onclick="runCode()">🚀 Deploy</button>
 </div>
 
 <div id="save-portal">
     <div class="portal-card">
         <h2>Save Project</h2>
-        <input type="text" id="project-name" class="portal-input" placeholder="Project Name" autofocus>
-        <div class="portal-btns">
-            <button class="p-btn save-cancel" onclick="closePortal()">Cancel</button>
-            <button class="p-btn save-confirm" onclick="confirmDownload()">Save Applet</button>
+        <input type="text" id="project-name" class="portal-input" placeholder="Project Name">
+        <div style="display: flex; gap: 10px;">
+            <button class="btn" style="flex: 1; background: transparent; color: white; border: 1px solid var(--glass-border);" onclick="closePortal()">Cancel</button>
+            <button class="btn" style="flex: 1; background: var(--accent); color: black;" onclick="confirmDownload()">Save</button>
         </div>
     </div>
 </div>
@@ -200,85 +110,50 @@
     const actionBtn = document.getElementById('action-btn');
     const viewer = document.getElementById('viewer');
 
+    function generateStableLink() {
+        const code = editor.value.trim();
+        if (!code) return alert("Please enter some code first!");
+        
+        const blob = new Blob([code], {type: 'text/html'});
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const finalUrl = e.target.result;
+            navigator.clipboard.writeText(finalUrl).then(() => {
+                const linkBtn = document.getElementById('link-btn');
+                linkBtn.innerHTML = "COPIED!";
+                alert("STABLE LINK READY!\n\nPaste this into your Chrome address bar to view.");
+                setTimeout(() => linkBtn.innerHTML = "LINK", 2000);
+            });
+        };
+        reader.readAsDataURL(blob);
+    }
+
     function toggleButtons() {
         if (editor.value.trim() === "") {
             actionBtn.className = "btn paste-btn";
-            actionBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg> Paste`;
+            actionBtn.innerHTML = "Paste";
         } else {
             actionBtn.className = "btn clear-btn";
-            actionBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Clear`;
+            actionBtn.innerHTML = "Clear";
         }
-    }
-
-    function generateRunLink() {
-        const code = editor.value.trim();
-        if (!code) {
-            alert("Editor is empty. Build something first!");
-            return;
-        }
-
-        // Create a Blob URL (handles large files much better than Data URIs)
-        const blob = new Blob([code], { type: 'text/html' });
-        const blobUrl = URL.createObjectURL(blob);
-
-        // Copy the link to clipboard
-        navigator.clipboard.writeText(blobUrl).then(() => {
-            const linkBtn = document.getElementById('link-btn');
-            const originalText = linkBtn.innerHTML;
-            linkBtn.style.color = "#34c759";
-            linkBtn.style.borderColor = "#34c759";
-            linkBtn.innerHTML = "LINK READY";
-            
-            // Interaction to open immediately
-            if(confirm("Link copied! Open in new Chrome tab?")) {
-                window.open(blobUrl, '_blank');
-            }
-
-            setTimeout(() => {
-                linkBtn.style.color = "";
-                linkBtn.style.borderColor = "";
-                linkBtn.innerHTML = originalText;
-            }, 2000);
-        }).catch(err => {
-            alert("Failed to copy link. Check clipboard permissions.");
-        });
     }
 
     async function handleAction() {
         if (editor.value.trim() === "") {
             try {
                 const text = await navigator.clipboard.readText();
-                if(text) {
-                    editor.value = text;
-                    toggleButtons();
-                }
-            } catch (err) {
-                editor.focus();
-            }
+                editor.value = text;
+            } catch (err) { editor.focus(); }
         } else {
             editor.value = "";
-            toggleButtons();
         }
-    }
-
-    function resetSystem() {
-        editor.value = "";
-        const doc = viewer.contentDocument || viewer.contentWindow.document;
-        doc.open(); doc.write(""); doc.close();
-        viewer.classList.remove('loaded');
-        switchTab('code', document.querySelectorAll('.tab-btn')[0]);
         toggleButtons();
     }
 
     function runCode() {
-        viewer.classList.remove('loaded');
-        setTimeout(() => {
-            const code = editor.value;
-            const doc = viewer.contentDocument || viewer.contentWindow.document;
-            doc.open(); doc.write(code); doc.close();
-            viewer.classList.add('loaded');
-        }, 150);
-
+        const doc = viewer.contentDocument || viewer.contentWindow.document;
+        doc.open(); doc.write(editor.value); doc.close();
+        viewer.classList.add('loaded');
         if(document.getElementById('code-panel').classList.contains('active')) {
             switchTab('preview', document.querySelectorAll('.tab-btn')[1]);
         }
@@ -289,10 +164,7 @@
         btn.classList.add('active');
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         document.getElementById(tab + '-panel').classList.add('active');
-
-        if (tab === 'preview' && editor.value.trim() !== "") {
-            runCode();
-        }
+        if (tab === 'preview' && editor.value.trim() !== "") runCode();
     }
 
     const portal = document.getElementById('save-portal');
@@ -300,11 +172,10 @@
     function closePortal() { portal.classList.remove('show'); setTimeout(()=>portal.style.display='none',400); }
     
     function confirmDownload() {
-        let name = document.getElementById('project-name').value.trim() || "xos_module";
+        let name = document.getElementById('project-name').value.trim() || "xos_app";
         const blob = new Blob([editor.value], { type: 'text/html' });
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${name}.html`;
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        closePortal();
+        a.click(); closePortal();
     }
 
     toggleButtons();
