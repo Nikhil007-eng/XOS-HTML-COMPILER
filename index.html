@@ -76,14 +76,22 @@
 
         .full-live-frame { width: 100%; height: 100%; border: none; border-radius: 30px; background: white; }
 
-        /* Action Dock */
-        .dock-container { position: fixed; bottom: 35px; left: 0; width: 100%; display: flex; justify-content: center; z-index: 100; }
+        .dock-container { position: fixed; bottom: 35px; left: 0; width: 100%; display: flex; justify-content: center; align-items: center; gap: 12px; z-index: 100; }
+        
+        .circle-btn {
+            width: 54px; height: 54px; 
+            background: rgba(15, 15, 15, 0.8); backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; cursor: pointer; transition: 0.2s;
+        }
+        .circle-btn:active { transform: scale(0.9); }
+
         .dock { background: rgba(15, 15, 15, 0.8); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 8px; border-radius: 60px; display: flex; gap: 5px; }
         .btn { background: transparent; border: none; color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .btn:active { transform: scale(0.95); opacity: 0.8; }
         .btn-primary { background: var(--accent); color: var(--bg); }
 
-        /* ADVANCED PORTAL STYLING */
         #portal { 
             position: fixed; inset: 0; 
             background: rgba(0,0,0,0.7); 
@@ -92,7 +100,6 @@
             z-index: 2000; opacity: 0; transition: 0.4s;
         }
         #portal.show { opacity: 1; }
-        
         .portal-box { 
             background: var(--glass); 
             border: 1px solid var(--glass-border); 
@@ -102,45 +109,34 @@
             text-align: center; 
             transform: translateY(30px);
             transition: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
         }
         #portal.show .portal-box { transform: translateY(0); }
-
-        .portal-box h2 { font-weight: 700; font-size: 1.2rem; margin-top: 0; color: white; letter-spacing: -0.5px; }
-        .portal-box p { font-size: 0.8rem; opacity: 0.4; margin-bottom: 25px; }
-
-        input { 
+        input[type="text"] { 
             width: 100%; background: rgba(255,255,255,0.03); 
             border: 1px solid var(--border); 
             padding: 20px; border-radius: 20px; 
             color: white; margin-bottom: 25px; 
             text-align: center; outline: none; 
-            font-size: 1rem; letter-spacing: 1px;
-            transition: 0.3s;
         }
-        input:focus { border-color: #444; background: rgba(255,255,255,0.06); }
-
-        .portal-actions { display: flex; gap: 10px; }
-        .btn-ghost { background: transparent; color: #666; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
 
 <header>
     <div class="brand">x0s <span style="font-weight: 300; opacity: 0.4;">Compiler</span></div>
-    <div style="font-size: 8px; opacity: 0.3; letter-spacing: 2px;">CORE_V2.0</div>
+    <div style="font-size: 8px; opacity: 0.3; letter-spacing: 2px;">CORE_V3.6</div>
 </header>
 
 <div class="tab-nav">
-    <button class="tab-trigger active" onclick="show('code', this)">Architecture</button>
-    <button id="live-tab" class="tab-trigger" onclick="show('live', this)">Live View</button>
-    <button id="mobile-tab" class="tab-trigger" onclick="show('mobile', this)">Mobile View</button>
+    <button id="tab-code" class="tab-trigger active" onclick="show('code', this)">Architecture</button>
+    <button id="tab-live" class="tab-trigger" onclick="show('live', this)">Live View</button>
+    <button id="tab-mobile" class="tab-trigger" onclick="show('mobile', this)">Mobile View</button>
 </div>
 
 <main class="stage">
     <div id="view-code" class="view active">
         <div class="editor-container">
-            <textarea id="main-editor" spellcheck="false" placeholder="// Paste architecture or build here..." oninput="updateActionBtn()"></textarea>
+            <textarea id="main-editor" spellcheck="false" placeholder="// Initializing build logic..." oninput="updateActionBtn()"></textarea>
         </div>
     </div>
     
@@ -165,6 +161,11 @@
 </main>
 
 <div class="dock-container">
+    <div class="circle-btn" onclick="document.getElementById('file-upload').click()">
+        <i class="fa-solid fa-arrow-up-from-bracket"></i>
+    </div>
+    <input type="file" id="file-upload" hidden onchange="handleFileUpload(this)">
+
     <div class="dock">
         <button id="action-btn" class="btn" onclick="handleAction()">Paste</button>
         <button class="btn" onclick="openPortal()">Save</button>
@@ -174,12 +175,11 @@
 
 <div id="portal" onclick="if(event.target == this) closePortal()">
     <div class="portal-box">
-        <h2>save project</h2>
-        <p>Assign a name</p>
-        <input type="text" id="file-name" placeholder="file name" autocomplete="off">
-        <div class="portal-actions">
-            <button class="btn btn-ghost" style="flex:1" onclick="closePortal()">Abort</button>
-            <button class="btn btn-primary" style="flex:2" onclick="saveFile()">save</button>
+        <h2 style="margin:0 0 10px 0;">Commit Build</h2>
+        <input type="text" id="file-name" placeholder="x0s_core_01" autocomplete="off">
+        <div style="display:flex; gap:10px;">
+            <button class="btn" style="flex:1; border:1px solid var(--border);" onclick="closePortal()">Abort</button>
+            <button class="btn btn-primary" style="flex:2" onclick="saveFile()">Confirm</button>
         </div>
     </div>
 </div>
@@ -200,13 +200,23 @@
             try {
                 const text = await navigator.clipboard.readText();
                 editor.value = text;
-            } catch (err) {
-                editor.focus();
-            }
+            } catch (err) { editor.focus(); }
         } else {
             editor.value = "";
         }
         updateActionBtn();
+    }
+
+    function handleFileUpload(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                editor.value = e.target.result;
+                updateActionBtn();
+            };
+            reader.readAsText(file);
+        }
     }
 
     function show(mode, btn) {
@@ -214,10 +224,19 @@
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('view-' + mode).classList.add('active');
-        if((mode === 'live' || mode === 'mobile') && editor.value.trim() !== "") deploy();
+        if((mode === 'live' || mode === 'mobile') && editor.value.trim() !== "") runDeployLogic();
     }
 
+    // Fixed Deploy logic to switch tabs
     function deploy() {
+        if(editor.value.trim() === "") return alert("Add code to deploy!");
+        runDeployLogic();
+        // Trigger tab switch to Live View
+        const liveTabBtn = document.getElementById('tab-live');
+        show('live', liveTabBtn);
+    }
+
+    function runDeployLogic() {
         const content = editor.value;
         [lFrame, mFrame].forEach(frame => {
             const doc = frame.contentDocument || frame.contentWindow.document;
