@@ -3,139 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XOS Systems</title>
+    <title>x0s | Compiler</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --glass: rgba(255, 255, 255, 0.08);
-            --glass-border: rgba(255, 255, 255, 0.12);
-            --accent: #00d2ff;
-            --pure-black: #000000;
-            --danger: rgba(255, 69, 58, 0.2);
-            --success: rgba(52, 199, 89, 0.3);
+            --bg: #000000;
+            --accent: #ffffff;
+            --card: #0a0a0a;
+            --border: #1a1a1a;
+            --code-cyan: #00d2ff;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Space Grotesk', sans-serif; }
 
         body {
-            margin: 0; background-color: var(--pure-black);
-            font-family: 'Inter', sans-serif; color: white;
-            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            margin: 0; background-color: var(--bg);
+            color: var(--accent); height: 100vh;
+            display: flex; flex-direction: column; overflow: hidden;
         }
 
-        header { padding: 20px; display: flex; justify-content: center; align-items: center; position: relative; }
-        .header-title { font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase; color: rgba(255,255,255,0.3); }
-        .header-actions { position: absolute; right: 15px; top: 15px; display: flex; gap: 8px; z-index: 1001; }
+        header { padding: 20px 24px 10px; display: flex; justify-content: space-between; align-items: center; }
+        .brand { font-weight: 700; letter-spacing: -1px; font-size: 1.1rem; }
 
-        .shortcut-btn {
-            background: var(--glass); border: 1px solid var(--glass-border); color: var(--accent);
-            padding: 8px 12px; border-radius: 12px; font-size: 0.6rem; font-weight: 800; cursor: pointer;
-            backdrop-filter: blur(10px); display: flex; align-items: center; gap: 5px;
+        .tab-nav { 
+            display: flex; gap: 6px; padding: 10px 20px; 
+            overflow-x: auto; scrollbar-width: none;
+        }
+        .tab-trigger {
+            background: var(--card); border: 1px solid var(--border); color: #555;
+            padding: 10px 18px; border-radius: 50px; flex-shrink: 0;
+            font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: 0.3s;
+        }
+        .tab-trigger.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+        .stage { flex: 1; position: relative; margin-bottom: 120px; }
+        .view { 
+            position: absolute; inset: 0 15px; opacity: 0; 
+            transform: scale(0.98); pointer-events: none; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex; justify-content: center; align-items: flex-start;
+        }
+        .view.active { opacity: 1; transform: scale(1); pointer-events: all; }
+
+        .editor-container { background: var(--card); border: 1px solid var(--border); border-radius: 30px; width: 100%; height: 100%; overflow: hidden; }
+        textarea {
+            width: 100%; height: 100%; background: transparent; border: none;
+            color: var(--code-cyan); padding: 25px; 
+            font-family: 'Fira Code', monospace; font-size: 13px; line-height: 1.7;
+            outline: none; resize: none; white-space: pre; overflow-x: auto;
         }
 
-        .tab-container { display: flex; margin: 0 20px 10px 20px; background: var(--glass); border-radius: 20px; padding: 5px; border: 1px solid var(--glass-border); }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: rgba(255,255,255,0.5); font-weight: 500; border-radius: 15px; cursor: pointer; }
-        .tab-btn.active { background: rgba(255, 255, 255, 0.15); color: white; }
+        .phone-frame {
+            width: 320px; height: 95%; background: #000; border: 8px solid #1a1a1a;
+            border-radius: 45px; position: relative; overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 0 2px #111;
+        }
+        .status-bar {
+            position: absolute; top: 0; left: 0; width: 100%; height: 28px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 22px; font-size: 10px; font-weight: 600; z-index: 11;
+            color: white; background: black;
+        }
+        .status-icons { display: flex; gap: 8px; align-items: center; font-size: 9px; }
+        
+        .punch-hole {
+            position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+            width: 12px; height: 12px; background: #080808; border-radius: 50%; z-index: 12;
+        }
+        .phone-frame iframe { width: 100%; height: 100%; border: none; background: white; padding-top: 28px; }
 
-        .content { flex: 1; position: relative; margin: 0 20px 100px 20px; }
-        .panel { position: absolute; width: 100%; height: 100%; opacity: 0; transform: scale(0.98); visibility: hidden; transition: 0.5s; }
-        .panel.active { opacity: 1; transform: scale(1); visibility: visible; }
+        .full-live-frame { width: 100%; height: 100%; border: none; border-radius: 30px; background: white; }
 
-        .glass-card { width: 100%; height: 100%; background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 35px; overflow: hidden; }
-        textarea { width: 100%; height: 100%; background: transparent; border: none; color: var(--accent); padding: 25px; font-family: 'Fira Code', monospace; font-size: 14px; outline: none; resize: none; }
-        iframe { width: 100%; height: 100%; border: none; background: white; border-radius: 30px; opacity: 0; transition: 0.4s; }
-        iframe.loaded { opacity: 1; }
+        /* Action Dock */
+        .dock-container { position: fixed; bottom: 35px; left: 0; width: 100%; display: flex; justify-content: center; z-index: 100; }
+        .dock { background: rgba(15, 15, 15, 0.8); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 8px; border-radius: 60px; display: flex; gap: 5px; }
+        .btn { background: transparent; border: none; color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn:active { transform: scale(0.95); opacity: 0.8; }
+        .btn-primary { background: var(--accent); color: var(--bg); }
 
-        .actions { position: fixed; bottom: 30px; left: 0; width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; z-index: 100; padding: 0 15px; }
-        .btn { border: none; padding: 16px 18px; border-radius: 50px; font-weight: 700; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; }
-        .clear-btn { background: var(--danger); color: #ff453a; }
-        .paste-btn { background: var(--success); color: #34c759; } 
-        .download-btn { background: var(--glass); color: white; border: 1px solid var(--glass-border); }
-        .deploy-btn { background: white; color: black; box-shadow: 0 0 20px rgba(0,210,255,0.3); min-width: 110px; }
+        /* ADVANCED PORTAL STYLING */
+        #portal { 
+            position: fixed; inset: 0; 
+            background: rgba(0,0,0,0.7); 
+            backdrop-filter: blur(15px); 
+            display: none; align-items: center; justify-content: center; 
+            z-index: 2000; opacity: 0; transition: 0.4s;
+        }
+        #portal.show { opacity: 1; }
+        
+        .portal-box { 
+            background: var(--glass); 
+            border: 1px solid var(--glass-border); 
+            padding: 40px 30px; 
+            border-radius: 40px; 
+            width: 90%; max-width: 340px; 
+            text-align: center; 
+            transform: translateY(30px);
+            transition: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+        }
+        #portal.show .portal-box { transform: translateY(0); }
 
-        /* Save Portal */
-        #save-portal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); display: none; align-items: center; justify-content: center; z-index: 2000; opacity: 0; transition: 0.4s; }
-        #save-portal.show { display: flex; opacity: 1; }
-        .portal-card { background: var(--glass); border: 1px solid var(--glass-border); padding: 40px; border-radius: 40px; width: 85%; max-width: 400px; text-align: center; }
-        .portal-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 15px; border-radius: 15px; color: white; margin: 20px 0; outline: none; text-align: center; }
+        .portal-box h2 { font-weight: 700; font-size: 1.2rem; margin-top: 0; color: white; letter-spacing: -0.5px; }
+        .portal-box p { font-size: 0.8rem; opacity: 0.4; margin-bottom: 25px; }
+
+        input { 
+            width: 100%; background: rgba(255,255,255,0.03); 
+            border: 1px solid var(--border); 
+            padding: 20px; border-radius: 20px; 
+            color: white; margin-bottom: 25px; 
+            text-align: center; outline: none; 
+            font-size: 1rem; letter-spacing: 1px;
+            transition: 0.3s;
+        }
+        input:focus { border-color: #444; background: rgba(255,255,255,0.06); }
+
+        .portal-actions { display: flex; gap: 10px; }
+        .btn-ghost { background: transparent; color: #666; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="header-title">XOS Core Intelligence</div>
-    <div class="header-actions">
-        <button id="link-btn" class="shortcut-btn" onclick="generateStableLink()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-            LINK
-        </button>
-        <button class="shortcut-btn" onclick="location.reload()">RESET</button>
-    </div>
+    <div class="brand">x0s <span style="font-weight: 300; opacity: 0.4;">Compiler</span></div>
+    <div style="font-size: 8px; opacity: 0.3; letter-spacing: 2px;">CORE_V2.0</div>
 </header>
 
-<div class="tab-container">
-    <button class="tab-btn active" onclick="switchTab('code', this)">Architecture</button>
-    <button class="tab-btn" onclick="switchTab('preview', this)">Deployment</button>
+<div class="tab-nav">
+    <button class="tab-trigger active" onclick="show('code', this)">Architecture</button>
+    <button id="live-tab" class="tab-trigger" onclick="show('live', this)">Live View</button>
+    <button id="mobile-tab" class="tab-trigger" onclick="show('mobile', this)">Mobile View</button>
 </div>
 
-<div class="content">
-    <div id="code-panel" class="panel active">
-        <div class="glass-card">
-            <textarea id="editor" spellcheck="false" placeholder="// Architecture build..." oninput="toggleButtons()"></textarea>
+<main class="stage">
+    <div id="view-code" class="view active">
+        <div class="editor-container">
+            <textarea id="main-editor" spellcheck="false" placeholder="// Paste architecture or build here..." oninput="updateActionBtn()"></textarea>
         </div>
     </div>
-    <div id="preview-panel" class="panel">
-        <div class="glass-card" style="background: white;"><iframe id="viewer"></iframe></div>
+    
+    <div id="view-live" class="view">
+        <iframe id="live-frame" class="full-live-frame"></iframe>
+    </div>
+
+    <div id="view-mobile" class="view">
+        <div class="phone-frame">
+            <div class="status-bar">
+                <div id="phone-time">00:00</div>
+                <div class="status-icons">
+                    <i class="fa-solid fa-wifi"></i>
+                    <i class="fa-solid fa-signal"></i>
+                    <i class="fa-solid fa-battery-three-quarters"></i>
+                </div>
+            </div>
+            <div class="punch-hole"></div>
+            <iframe id="mobile-frame"></iframe>
+        </div>
+    </div>
+</main>
+
+<div class="dock-container">
+    <div class="dock">
+        <button id="action-btn" class="btn" onclick="handleAction()">Paste</button>
+        <button class="btn" onclick="openPortal()">Save</button>
+        <button class="btn btn-primary" onclick="deploy()">Deploy</button>
     </div>
 </div>
 
-<div class="actions">
-    <button id="action-btn" class="btn" onclick="handleAction()"></button>
-    <button class="btn download-btn" onclick="openPortal()">Save</button>
-    <button class="btn deploy-btn" onclick="runCode()">Deploy</button>
-</div>
-
-<div id="save-portal">
-    <div class="portal-card">
-        <h2>Save Project</h2>
-        <input type="text" id="project-name" class="portal-input" placeholder="Project Name">
-        <div style="display: flex; gap: 10px;">
-            <button class="btn" style="flex: 1; background: transparent; color: white; border: 1px solid var(--glass-border);" onclick="closePortal()">Cancel</button>
-            <button class="btn" style="flex: 1; background: var(--accent); color: black;" onclick="confirmDownload()">Save</button>
+<div id="portal" onclick="if(event.target == this) closePortal()">
+    <div class="portal-box">
+        <h2>save project</h2>
+        <p>Assign a name</p>
+        <input type="text" id="file-name" placeholder="file name" autocomplete="off">
+        <div class="portal-actions">
+            <button class="btn btn-ghost" style="flex:1" onclick="closePortal()">Abort</button>
+            <button class="btn btn-primary" style="flex:2" onclick="saveFile()">save</button>
         </div>
     </div>
 </div>
 
 <script>
-    const editor = document.getElementById('editor');
+    const editor = document.getElementById('main-editor');
     const actionBtn = document.getElementById('action-btn');
-    const viewer = document.getElementById('viewer');
+    const lFrame = document.getElementById('live-frame');
+    const mFrame = document.getElementById('mobile-frame');
+    const portal = document.getElementById('portal');
 
-    function generateStableLink() {
-        const code = editor.value.trim();
-        if (!code) return alert("Please enter some code first!");
-        
-        const blob = new Blob([code], {type: 'text/html'});
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const finalUrl = e.target.result;
-            navigator.clipboard.writeText(finalUrl).then(() => {
-                const linkBtn = document.getElementById('link-btn');
-                linkBtn.innerHTML = "COPIED!";
-                alert("STABLE LINK READY!\n\nPaste this into your Chrome address bar to view.");
-                setTimeout(() => linkBtn.innerHTML = "LINK", 2000);
-            });
-        };
-        reader.readAsDataURL(blob);
-    }
-
-    function toggleButtons() {
-        if (editor.value.trim() === "") {
-            actionBtn.className = "btn paste-btn";
-            actionBtn.innerHTML = "Paste";
-        } else {
-            actionBtn.className = "btn clear-btn";
-            actionBtn.innerHTML = "Clear";
-        }
+    function updateActionBtn() {
+        actionBtn.innerText = editor.value.trim() === "" ? "Paste" : "Clear";
     }
 
     async function handleAction() {
@@ -143,42 +200,59 @@
             try {
                 const text = await navigator.clipboard.readText();
                 editor.value = text;
-            } catch (err) { editor.focus(); }
+            } catch (err) {
+                editor.focus();
+            }
         } else {
             editor.value = "";
         }
-        toggleButtons();
+        updateActionBtn();
     }
 
-    function runCode() {
-        const doc = viewer.contentDocument || viewer.contentWindow.document;
-        doc.open(); doc.write(editor.value); doc.close();
-        viewer.classList.add('loaded');
-        if(document.getElementById('code-panel').classList.contains('active')) {
-            switchTab('preview', document.querySelectorAll('.tab-btn')[1]);
-        }
-    }
-
-    function switchTab(tab, btn) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    function show(mode, btn) {
+        document.querySelectorAll('.tab-trigger').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         btn.classList.add('active');
-        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        document.getElementById(tab + '-panel').classList.add('active');
-        if (tab === 'preview' && editor.value.trim() !== "") runCode();
+        document.getElementById('view-' + mode).classList.add('active');
+        if((mode === 'live' || mode === 'mobile') && editor.value.trim() !== "") deploy();
     }
 
-    const portal = document.getElementById('save-portal');
-    function openPortal() { portal.style.display='flex'; setTimeout(()=>portal.classList.add('show'),10); }
-    function closePortal() { portal.classList.remove('show'); setTimeout(()=>portal.style.display='none',400); }
+    function deploy() {
+        const content = editor.value;
+        [lFrame, mFrame].forEach(frame => {
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            doc.open(); doc.write(content); doc.close();
+        });
+    }
+
+    function openPortal() { 
+        portal.style.display = 'flex'; 
+        setTimeout(() => portal.classList.add('show'), 10);
+    }
     
-    function confirmDownload() {
-        let name = document.getElementById('project-name').value.trim() || "xos_app";
-        const blob = new Blob([editor.value], { type: 'text/html' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${name}.html`;
-        a.click(); closePortal();
+    function closePortal() { 
+        portal.classList.remove('show'); 
+        setTimeout(() => portal.style.display = 'none', 400); 
     }
 
-    toggleButtons();
+    function saveFile() {
+        let name = document.getElementById('file-name').value.trim() || "x0s_build";
+        const blob = new Blob([editor.value], {type: 'text/html'});
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = name + ".html";
+        link.click();
+        closePortal();
+    }
+
+    function setTime() {
+        const now = new Date();
+        document.getElementById('phone-time').innerText = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+    }
+    setInterval(setTime, 1000);
+    setTime();
+    updateActionBtn();
 </script>
+
 </body>
 </html>
