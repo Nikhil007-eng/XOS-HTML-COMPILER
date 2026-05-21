@@ -849,7 +849,7 @@ function deployRepo(repoId){
     ||repo.files.find(f=>f.name.toLowerCase().endsWith('.html'))
     ||repo.files[0];
 
-  // Build a map of filename → blob URL for all files
+  // Build a map of filename → blob URL for all code files
   const blobMap={};
   repo.files.forEach(file=>{
     const mime=getMime(file.name);
@@ -857,13 +857,26 @@ function deployRepo(repoId){
     blobMap[file.name]=URL.createObjectURL(blob);
   });
 
+  // Also map media: dataURL → blob URL so src="photo.jpg" resolves
+  (repo.media||[]).forEach(m=>{
+    // Convert base64 dataURL to blob
+    const arr=m.dataUrl.split(',');
+    const mimeMatch=arr[0].match(/:(.*?);/);
+    const mime=mimeMatch?mimeMatch[1]:(m.type==='video'?'video/mp4':'image/jpeg');
+    const bstr=atob(arr[1]);
+    const u8=new Uint8Array(bstr.length);
+    for(let i=0;i<bstr.length;i++)u8[i]=bstr.charCodeAt(i);
+    const blob=new Blob([u8],{type:mime});
+    blobMap[m.name]=URL.createObjectURL(blob);
+  });
+
   // Rewrite entry file: replace src="filename", href="filename" with blob URLs
+  // Covers all files + media by iterating blobMap
   let html=entry.content;
-  repo.files.forEach(file=>{
-    if(file===entry)return;
-    // replace both quoted variants and handle path-only refs
-    const escaped=file.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-    html=html.replace(new RegExp(`(src|href)=["']${escaped}["']`,'gi'),(match,attr)=>`${attr}="${blobMap[file.name]}"`);
+  Object.entries(blobMap).forEach(([name,url])=>{
+    if(name===entry.name)return;
+    const escaped=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    html=html.replace(new RegExp(`(src|href)=["'](?:\\.\\/)?(${escaped})["']`,'gi'),(_,attr)=>`${attr}="${url}"`);
   });
 
   openRvDeploy(repo.name+' — Full Deploy',html);
